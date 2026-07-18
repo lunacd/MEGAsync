@@ -1147,6 +1147,11 @@ QString Utilities::getDefaultBasePath()
             return defaultPaths.at(0);
         }
 #else
+        if (qEnvironmentVariableIsSet("SNAP_REAL_HOME"))
+        {
+            return qEnvironmentVariable("SNAP_REAL_HOME");
+        }
+
         defaultPaths = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
         if (defaultPaths.size())
         {

@@ -3264,6 +3264,10 @@ QString MegaApplication::getDefaultUploadPath()
     {
         defaultFolderPath = paths.at(0);
     }
+    if (qEnvironmentVariableIsSet("SNAP_REAL_HOME"))
+    {
+        defaultFolderPath = qEnvironmentVariable("SNAP_REAL_HOME");
+    }
     return defaultFolderPath;
 }
 
