@@ -108,10 +108,23 @@ static const QString KEEP_LOGS_ON_LOGOUT_FILE_NAME = QString::fromLatin1("megasy
 void MegaApplication::loadDataPath()
 {
 #ifdef Q_OS_LINUX
-    dataPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-               + QString::fromUtf8("/data/") // appending "data" is non-standard behavior according to XDG Base Directory specification
-               + organizationName() + QString::fromLatin1("/")
-               + applicationName();
+    // Due to snap confinement, the socket needs to be exposed in the real user's
+    // home directory, not `SNAP_USER_DATA`.
+    // Given that this snap has `home` plug, it makes sense to put everything in the real user's home directory,
+    // like a un-confined Megasync would.
+    if (qEnvironmentVariableIsSet("SNAP_REAL_HOME")) {
+        dataPath = qEnvironmentVariable("SNAP_REAL_HOME") + QDir::separator() +
+                   QString::fromLatin1(".local") + QDir::separator() +
+                   QString::fromLatin1("share") + QDir::separator() +
+                   QString::fromLatin1("data") + QDir::separator() +
+                   organizationName() + QDir::separator() +
+                   applicationName();
+    } else {
+        dataPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+                   + QString::fromUtf8("/data/") // appending "data" is non-standard behavior according to XDG Base Directory specification
+                   + organizationName() + QString::fromLatin1("/")
+                   + applicationName();
+    }
 #else
     QStringList dataPaths = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
     if (dataPaths.size())
